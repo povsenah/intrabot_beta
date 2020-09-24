@@ -3,7 +3,7 @@
 
 import requests
 import telebot
-
+import os
 bot = telebot.TeleBot(token='1326919079:AAF0E9OTSd1_tKgbWyxL6md_B2lrVQISDq0')
 
 
@@ -20,6 +20,11 @@ def create_comment(ticket_id, comment):
     a = requests.put(url=url, auth=(login, password), json=payload)
     print(a.status_code, print(a.text), a, a.headers)
 
+def getname(telegram_id):
+    bot.send_message(chat_id=telegram_id, text='Как вас зовут?')
+
+
+
 
 @bot.message_handler()
 def chek_comment(message):
@@ -29,5 +34,18 @@ def chek_comment(message):
         comment = message.text
         return create_comment(ticket_id, comment)
 
+@bot.message_handler(commands=['start'])
+def hello(message):
+    telegram_id = message.chat.id
+    bot.send_message(chat_id=telegram_id,
+                     text='Привет, друг 🖐. Я бот, \nкоторый помогает следить за заявками Intraservise\n'
+                          'Давай знакомиться', )
+    if os.path.exists(telegram_id):
+        bot.send_message(chat_id=telegram_id, text='+')
+    else:
+        user = {
+            'name': 'User',
+            'phone':
+        }
 
 bot.polling()
