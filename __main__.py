@@ -27,7 +27,6 @@ def chek_comment(message):
         ticket_id = message.reply_to_message.text
         ticket_id = int(((str(ticket_id).split('🙀 Новая заявка: ')[1]).split('\n'))[0])
         comment = message.text
-        print(ticket_id, comment)
         return create_comment(ticket_id, comment)
 
 
