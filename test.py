@@ -5,10 +5,11 @@ This Example will show you how to use register_next_step handler.
 
 import telebot
 from telebot import types
+import json
 
 API_TOKEN = '<api_token>'
 
-bot = telebot.TeleBot(token='1326919079:AAF0E9OTSd1_tKgbWyxL6md_B2lrVQISDq0')
+bot = telebot.TeleBot(token='766426216:AAG5lQzCfWNxspmYpYiPt8pSM9kImViqteU')
 
 user_dict = {}
 
@@ -16,16 +17,15 @@ user_dict = {}
 class User:
     def __init__(self, name):
         self.name = name
-        self.age = None
-        self.sex = None
+        self.phone = None
+        self.chat_id = None
 
 
-# Handle '/start' and '/help'
-@bot.message_handler(commands=['help', 'start'])
+@bot.message_handler(commands=['start'])
 def send_welcome(message):
     msg = bot.reply_to(message, """\
-Hi there, I am Example bot.
-What's your name?
+Привет, я интработ.
+Напиши мне, как тебя зовут? 
 """)
     bot.register_next_step_handler(msg, process_name_step)
 
@@ -36,42 +36,41 @@ def process_name_step(message):
         name = message.text
         user = User(name)
         user_dict[chat_id] = user
-        msg = bot.reply_to(message, 'How old are you?')
-        bot.register_next_step_handler(msg, process_age_step)
+        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+        markup_button = types.KeyboardButton(text="Отправить номер телефона", request_contact=True)
+        markup.add(markup_button)
+        msg = bot.reply_to(message, 'Для авторизации отпавь мне свой номер телефона', reply_markup=markup)
+        bot.register_next_step_handler(msg, tphone)
     except Exception as e:
         bot.reply_to(message, 'oooops')
 
 
-def process_age_step(message):
+def tphone(message):
     try:
         chat_id = message.chat.id
-        age = message.text
-        if not age.isdigit():
-            msg = bot.reply_to(message, 'Age should be a number. How old are you?')
-            bot.register_next_step_handler(msg, process_age_step)
-            return
+        phone = message.contact.phone_number
         user = user_dict[chat_id]
-        user.age = age
-        markup = types.ReplyKeyboardMarkup(one_time_keyboard=True)
-        markup.add('Male', 'Female')
-        msg = bot.reply_to(message, 'What is your gender', reply_markup=markup)
-        bot.register_next_step_handler(msg, process_sex_step)
-    except Exception as e:
-        bot.reply_to(message, 'oooops')
+        user.phone = phone
+        user.chat_id = chat_id
+        msg = bot.reply_to(message, 'Спасибо')
+        print('msg.text: ', msg.text, 'chat_id: ', user.chat_id, 'user name: ', user.name, 'phone: ', user.phone)
+        user_conf = {
+            'name': user.name,
+            'phone': user.phone,
+            'chat_id': user.chat_id
+        }
+
+        with open(str(user_conf['chat_id']) + '.json', "w", encoding="utf-8") as file:
+            json.dump(user_conf, file, ensure_ascii=False)
+
+        with open(str(user_conf['chat_id']) + '.json', encoding="utf-8") as file:
+            a = json.load(file)
 
 
-def process_sex_step(message):
-    try:
-        chat_id = message.chat.id
-        sex = message.text
-        user = user_dict[chat_id]
-        if (sex == u'Male') or (sex == u'Female'):
-            user.sex = sex
-        else:
-            raise Exception()
-        bot.send_message(chat_id, 'Nice to meet you ' + user.name + '\n Age:' + str(user.age) + '\n Sex:' + user.sex)
+
     except Exception as e:
-        bot.reply_to(message, 'oooops')
+        print(Exception)
+        bot.reply_to(message, e)
 
 
 # Enable saving next step handlers to file "./.handlers-saves/step.save".
