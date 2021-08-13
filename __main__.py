@@ -5,12 +5,13 @@ import requests
 import telebot
 import json
 import os
+
 bot = telebot.TeleBot(token='1326919079:AAF0E9OTSd1_tKgbWyxL6md_B2lrVQISDq0')
 
 
 def check_ticket_status(ticket_id):
     login = 'api.bot'
-    password = 'kondrikova22@'
+    password = 'Wrfadmin2015@'
     server = 'https://wrf.intraservice.ru/'
     url = server + 'api/task/' + str(ticket_id)
     payload = {
@@ -25,7 +26,7 @@ def check_ticket_status(ticket_id):
 
 def create_comment(ticket_id, comment):
     login = 'api.bot'
-    password = 'kondrikova22@'
+    password = 'Wrfadmin2015@'
     server = 'https://wrf.intraservice.ru/'
     url = server + 'api/task/' + str(ticket_id)
     payload = {
@@ -36,9 +37,10 @@ def create_comment(ticket_id, comment):
     a = requests.put(url=url, auth=(login, password), json=payload)
     print(a.status_code, print(a.text))
 
+
 def create_task():
     login = 'api.bot'
-    password = 'kondrikova22@'
+    password = 'Wrfadmin2015@'
     server = 'https://wrf.intraservice.ru/'
     url = server + 'api/task/'
     description = 'Test '
@@ -51,6 +53,7 @@ def create_task():
     }
     a = requests.post(url=url, auth=(login, password), json=payload)
 
+
 # create_task()
 @bot.message_handler()
 def chek_comment(message):
@@ -59,6 +62,8 @@ def chek_comment(message):
         ticket_id = int(((str(ticket_id).split('🙀 Новая заявка: ')[1]).split('\n'))[0])
         comment = message.text
         return create_comment(ticket_id, comment)
+
+
 #
 # @bot.message_handler(commands=['start'])
 # def hello(message):
